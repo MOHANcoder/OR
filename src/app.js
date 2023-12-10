@@ -1,38 +1,141 @@
 const MinifiedNumber = require("./MinifiedNumber.js");
-let dividend ,divisor;
 
-function gcd(a,b){
-    return b==0?a:gcd(b,a%b);
-}
+const {ObjectiveFunction,Constraint} = require("./simplex.js");
 
-function minify(dividend,divisor){
-    let n = gcd(dividend,divisor);
-    console.log(dividend/n+"/"+divisor/n);
-}
+new ObjectiveFunction(4,"max",
+    [new MinifiedNumber(15),new MinifiedNumber(6), new MinifiedNumber(9), new MinifiedNumber(2)],
+    [
+    new Constraint(4,
+        [
+            new MinifiedNumber(2),
+            new MinifiedNumber(1),
+            new MinifiedNumber(5),
+            new MinifiedNumber(6,10)
+        ],
+            "<=",
+            new MinifiedNumber(10)
+    ),
+    new Constraint(4,
+        [
+            new MinifiedNumber(3),
+            new MinifiedNumber(1),
+            new MinifiedNumber(3),
+            new MinifiedNumber(1,4)
+        ],
+            "<=",
+            new MinifiedNumber(12)
+    ),
+    new Constraint(4,
+        [
+            new MinifiedNumber(7),
+            new MinifiedNumber(0),
+            new MinifiedNumber(0),
+            new MinifiedNumber(1)
+        ],
+            "<=",
+            new MinifiedNumber(35)
+    )
+],
+[
+    new Constraint(4,
+        [
+            new MinifiedNumber(1),
+            new MinifiedNumber(0),
+            new MinifiedNumber(0),
+            new MinifiedNumber(0)
+        ],
+            ">=",
+            new MinifiedNumber(0)
+    ),
+    new Constraint(4,
+        [
+            new MinifiedNumber(0),
+            new MinifiedNumber(1),
+            new MinifiedNumber(0),
+            new MinifiedNumber(0)
+        ],
+            ">=",
+            new MinifiedNumber(0)
+    ),
+    new Constraint(4,
+        [
+            new MinifiedNumber(0),
+            new MinifiedNumber(0),
+            new MinifiedNumber(1),
+            new MinifiedNumber(0)
+        ],
+            ">=",
+            new MinifiedNumber(0)
+    ),
+    new Constraint(4,
+        [
+            new MinifiedNumber(0),
+            new MinifiedNumber(0),
+            new MinifiedNumber(0),
+            new MinifiedNumber(1)
+        ],
+            ">=",
+            new MinifiedNumber(0)
+    )
+]).solve();
 
-// minify(60,40);
-// let n = new MinifiedNumber(78,16);
-// console.log((n+"")+" = ");
-// n.minify();
-// console.log(n+"");
-// let t = n.add(new MinifiedNumber(1,8));
-// console.log(t+"");
-// t.minify();
-// console.log(t+"");
-// console.log(t.add(8)+"");
-// console.log(t+" "+t.divide(new MinifiedNumber(2,5))+"");
-
-let a = [new MinifiedNumber(10),new MinifiedNumber(2),new MinifiedNumber(-1),new MinifiedNumber(100)];
-// let b = new MinifiedNumber(0);
-let d = [1,2,-3,-4];
-console.log(d.reduce((a,b)=>Math.min(a,b)));
-console.log(a.reduce((a,c)=>a.min(a,c))+""+a);
-let q = new MinifiedNumber(4,8);
-console.log(q+"");
-q = q.multiply(10);
-q = q.divide(5);
-console.log(q+"");
-console.log(""+(new MinifiedNumber(2,-1)));
-console.log(new MinifiedNumber(1).min(q,Infinity)+"");
-console.log(q.min(new MinifiedNumber(1,-2),Infinity)+"");
-// console.log([new MinifiedNumber(1,-2),new MinifiedNumber(2),new MinifiedNumber(0),new MinifiedNumber(3,4),new MinifiedNumber(0)]+"");
+new ObjectiveFunction(3,"min",
+    [new MinifiedNumber(1),new MinifiedNumber(-3), new MinifiedNumber(2)],
+    [
+    new Constraint(3,
+        [
+            new MinifiedNumber(3),
+            new MinifiedNumber(-1),
+            new MinifiedNumber(2)
+        ],
+            "<=",
+            new MinifiedNumber(7)
+    ),
+    new Constraint(3,
+        [
+            new MinifiedNumber(-2),
+            new MinifiedNumber(4),
+            new MinifiedNumber(0)
+        ],
+            "<=",
+            new MinifiedNumber(12)
+    ),
+    new Constraint(3,
+        [
+            new MinifiedNumber(-4),
+            new MinifiedNumber(3),
+            new MinifiedNumber(8)
+        ],
+            "<=",
+            new MinifiedNumber(10)
+    )
+],
+[
+    new Constraint(3,
+        [
+            new MinifiedNumber(1),
+            new MinifiedNumber(0),
+            new MinifiedNumber(0)
+        ],
+            ">=",
+            new MinifiedNumber(0)
+    ),
+    new Constraint(3,
+        [
+            new MinifiedNumber(0),
+            new MinifiedNumber(1),
+            new MinifiedNumber(0)
+        ],
+            ">=",
+            new MinifiedNumber(0)
+    ),
+    new Constraint(3,
+        [
+            new MinifiedNumber(0),
+            new MinifiedNumber(0),
+            new MinifiedNumber(1)
+        ],
+            ">=",
+            new MinifiedNumber(0)
+    )
+]).solve();

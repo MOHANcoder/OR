@@ -6,28 +6,28 @@ function Constraint(noOfDecisionVariables, coEfficientsArray, symbol, constant) 
     this.symbol = symbol;
     this.constant = constant;
     this.variables = [];
-    if (this.constant < 0) {
-        this.coEfficientsArray = this.coEfficientsArray.map(x => -x);
+    if (this.constant.getValue() < 0) {
+        this.coEfficientsArray = this.coEfficientsArray.map(x => x.multiply(-1));
         if (this.symbol != "=") {
             switch (this.symbol) {
                 case "<=": this.symbol = ">="; break;
                 case ">=": this.symbol = "<="; break;
             }
         }
-        this.constant = -this.constant;
+        this.constant = (this.constant).multiply(-1);
     }
 
     this.toString = function () {
         let s = "";
         this.coEfficientsArray.forEach((coEfficient, i) => {
             if (i < noOfDecisionVariables) {
-                if (i > 0 && coEfficient > -1)
+                if (i > 0 && coEfficient.getValue() > -1)
                     s += "+"
-                s += `${coEfficient}x${i + 1}`;
+                s += `${coEfficient}x${i + 1}`; //for decision variables
             } else {
-                if (i > 0 && coEfficient > -1)
+                if (i > 0 && coEfficient.getValue() > -1)
                     s += "+"
-                s += `${coEfficient}s${i + 1}`;
+                s += `${coEfficient}s${i + 1}`; //for slack and surplus variables
             }
         });
         s += this.symbol + this.constant;
@@ -38,17 +38,17 @@ function Constraint(noOfDecisionVariables, coEfficientsArray, symbol, constant) 
         if (this.symbol != "=") {
             switch (this.symbol) {
                 case "<=": {
-                    variables[index].push(1);
+                    variables[index].push(new MinifiedNumber(1));
                     break;
                 }
                 case ">=": {
-                    variables[index].push(-1);
+                    variables[index].push(new MinifiedNumber(-1));
                     break;
                 }
             }
             for (let i = 0; i < variables.length; i++) {
                 if (i != index) {
-                    variables[i].push(0);
+                    variables[i].push(new MinifiedNumber(0));
                 }
             }
             this.symbol = "=";
@@ -63,6 +63,12 @@ function ObjectiveFunction(noOfDecisionVariables, type, coEfficientsArray, const
     this.type = type;
     this.variables = [];
     this.nonNegativeConstraints = nonNegativeConstraints;
+
+    if(this.type === "min"){
+        this.coEfficientsArray = this.coEfficientsArray.map(coEfficient => coEfficient.multiply(-1));
+        this.type = "max";
+    }
+
     for (let i = 0; i < this.constraints.length; i++) {
         this.variables.push(new Array());
     }
@@ -72,10 +78,12 @@ function ObjectiveFunction(noOfDecisionVariables, type, coEfficientsArray, const
             constraint.variables = this.variables[i];
             if (constraint.symbol != "=") {
                 // Adding slack and surplus variables to the objective function
-                this.coEfficientsArray.push(0);
+                this.coEfficientsArray.push(new MinifiedNumber(0));
 
-                let arr = new Array(this.noOfDecisionVariables).fill(0);
-                this.nonNegativeConstraints.push(new Constraint(this.noOfDecisionVariables, arr, ">=", 0));
+                let arr = new Array(this.noOfDecisionVariables).map(_ => new MinifiedNumber(0));
+                
+                // Adding a non negative constraint for newly added slack and surplus variables
+                this.nonNegativeConstraints.push(new Constraint(this.noOfDecisionVariables, arr, ">=", new MinifiedNumber(0)));
             }
             constraint.convertToStandardForm(this.variables, i);
         });
@@ -88,7 +96,7 @@ function ObjectiveFunction(noOfDecisionVariables, type, coEfficientsArray, const
         for (let i = 0; i < this.noOfDecisionVariables; i++) {
             // Adding zero as a coefficient for slack and surplus variables 
             for (let j = 0; j < this.variables[0].length; j++) {
-                this.nonNegativeConstraints[i].coEfficientsArray.push(0);
+                this.nonNegativeConstraints[i].coEfficientsArray.push(new MinifiedNumber(0));
             }
         }
 
@@ -96,15 +104,17 @@ function ObjectiveFunction(noOfDecisionVariables, type, coEfficientsArray, const
         for (let i = this.noOfDecisionVariables; i < this.coEfficientsArray.length; i++) {
             // Adding zero as a coefficient for slack and surplus variables
             for (let j = 0; j < this.variables[0].length; j++) {
-                this.nonNegativeConstraints[i].coEfficientsArray.push(0);
+                this.nonNegativeConstraints[i].coEfficientsArray.push(new MinifiedNumber(0));
             }
             // Replace the coefficient from 0 to 1 for convert the constraint for the corresponding slack or surplus variable
-            this.nonNegativeConstraints[i].coEfficientsArray[i] = 1;
+            this.nonNegativeConstraints[i].coEfficientsArray[i] = new MinifiedNumber(1);
         }
     }
 
+    //Creating an array of constants
+
     this.getInitialBasicFeasibleSolution = function () {
-        let solution = new Array(this.nonNegativeConstraints.length).fill(0);
+        let solution = Array.from({length:this.nonNegativeConstraints.length},_=>new MinifiedNumber(0));
         for (let i = this.noOfDecisionVariables; i < this.nonNegativeConstraints.length; i++) {
             solution[i] = this.constraints[i - this.noOfDecisionVariables].constant;
         }
@@ -130,53 +140,54 @@ function ObjectiveFunction(noOfDecisionVariables, type, coEfficientsArray, const
     this.solve = function () {
         this.convertToStandardForm();
         let IBFS = this.getInitialBasicFeasibleSolution();
-        console.log(IBFS);
         let simplexTable = [];
         for (let i = 0; i < this.constraints.length; i++) {
             let row = [];
             // Adding initial cost of decision variable
-            row.push(new MinifiedNumber(this.coEfficientsArray[this.noOfDecisionVariables + i]));
+            row.push(this.coEfficientsArray[this.noOfDecisionVariables + i]);
             // Adding the ith slack or surplus variable
             row.push(new MinifiedNumber(i+this.noOfDecisionVariables));
             // Adding the initial solution for the corresponding slack or surplus variable
-            row.push(new MinifiedNumber(IBFS[this.noOfDecisionVariables + i]));
+            row.push(IBFS[this.noOfDecisionVariables + i]);
             // Adding the coefficients of the constraints
-            row.push(...this.constraints[i].coEfficientsArray.map(c=>new MinifiedNumber(c)));
+            row.push(...this.constraints[i].coEfficientsArray);
             simplexTable.push(row);
         }
-
-        console.log(simplexTable);
         
         let zj = Array.from({length:this.coEfficientsArray.length},_=>new MinifiedNumber(0));
-        let cj = this.coEfficientsArray.map(e=>new MinifiedNumber(e));
+        let cj = this.coEfficientsArray;
         let isFirstIteration = true;
         let columnsToSkip = 3;
-        let maxIterations = 5;
         do {
             if(!isFirstIteration){
                 // Finding pivotal element and moving to next iteration
                 let e = new MinifiedNumber(Infinity);
                 zj.forEach(z=>{
-                    if(z.min(z,e) == z){
-                        
-                        e = z;
-                    }
+                    e = z.min(z,e);
                 });
+                console.log("zj values ....");
+                console.log(zj.join(" "));
+                
                 let pivotalColumn = zj.indexOf(e);
                 let row,pivotalRow = 0;
                 let pivot ,prevValue = new MinifiedNumber(Infinity);
+                console.log("min in z = ",e+"", " at index  = ",pivotalColumn);
                 for(row = 0;row<simplexTable.length;row++){
-                    if(simplexTable[row][pivotalColumn+3].isNegative()){
+                    if(simplexTable[row][pivotalColumn+columnsToSkip].isNegative()){
                         continue;
                     }
-                    let value = simplexTable[row][2].divide(simplexTable[row][pivotalColumn+3]);
+                    let value = simplexTable[row][2].divide(simplexTable[row][pivotalColumn+columnsToSkip]);
                     if(value.min(value,prevValue) === value){
-                        pivot = simplexTable[row][pivotalColumn+3];
+                        pivot = simplexTable[row][pivotalColumn+columnsToSkip];
                         pivotalRow = row;
                         prevValue = value;
                     }
                 }
-
+                if(pivot === undefined){
+                    console.log("This system of equations has no solution or has many solutions or unbounded solution.");
+                    return;
+                }
+                console.log("pivotal row = ",pivotalRow,"pivotal column = ",pivotalColumn,"pivot  = ",pivot+"");
                 simplexTable[pivotalRow][0] = cj[pivotalColumn];
                 simplexTable[pivotalRow][1].changeValue(pivotalColumn);
                 let modifiedSimplexTable = new Array(simplexTable.length);
@@ -203,22 +214,20 @@ function ObjectiveFunction(noOfDecisionVariables, type, coEfficientsArray, const
             }
             
             zj.forEach(z=>z.changeValue(0));
-            console.log(zj);
+            
             for (let row = 0; row < simplexTable.length; row++) {
                 for (let i = 0; i < zj.length; i++) {
                     zj[i] = zj[i].add(simplexTable[row][0].multiply(simplexTable[row][columnsToSkip+i]));
                 }
             }
 
-            zj = zj.map((z,i)=>z.subtract(cj[i]));
+            zj = zj.map((z,i)=>z.subtract(cj[i])); //Calculating the zj-cj values
 
             isFirstIteration = false;
+
             this.displaySimplexTable(simplexTable);
             
-        } while (zj.some(z=>z.isNegative()) && maxIterations--);
-        // console.log(simplexTable[2][6]);
-        simplexTable[2][6].minify();
-        // console.log(simplexTable[2][6].minify());
+        } while (zj.some(z=>z.isNegative()));   //Check for any negative zj-cj values
     }
 
     this.toString = function () {
@@ -226,11 +235,11 @@ function ObjectiveFunction(noOfDecisionVariables, type, coEfficientsArray, const
         s += this.type + " z = ";
         this.coEfficientsArray.forEach((coEfficient, i) => {
             if (i < noOfDecisionVariables) {
-                if (i > 0 && coEfficient > -1)
+                if (i > 0 && coEfficient.getValue() > -1)
                     s += "+"
                 s += `${coEfficient}x${i + 1}`;
             } else {
-                if (i > 0 && coEfficient > -1)
+                if (i > 0 && coEfficient.getValue() > -1)
                     s += "+"
                 s += `${coEfficient}s${i + 1}`;
             }
@@ -239,11 +248,6 @@ function ObjectiveFunction(noOfDecisionVariables, type, coEfficientsArray, const
     }
 }
 
-function Simplex() {
-
-}
-
-// let c1 = new Constraint(4,[1,-2,3,1],"<=",-10);
 let constraintArray = [];
 function generate(n, l) {
     let a = [];
@@ -271,38 +275,121 @@ function generate(n, l) {
 // console.log(constraintArray);
 // constraintArray.forEach(constraint => console.log(constraint + ""));
 
-// let nonNegativeConstraints = [new Constraint(4,[1,0,0,0],">=",0),
-// new Constraint(4,[0,1,0,0],">=",0),
-// new Constraint(4,[0,0,1,0],">=",0),
-// new Constraint(4,[0,0,0,1],">=",0)]
+// let qs = [
+//     new ObjectiveFunction(3,"max",[-1,3,-2],[
+//         new Constraint(3,[3,-1,2],"<=",7),
+//         new Constraint(3,[-2,4,0],"<=",12),
+//         new Constraint(3,[-4,3,8],"<=",10)
+//     ],
+//     [
+//         new Constraint(3,[1,0,0],">=",0),
+//         new Constraint(3,[0,1,0],">=",0),
+//         new Constraint(3,[0,0,1],">=",0)
+//     ]),
+//     new ObjectiveFunction(2,"max",[4,10],[
+//         new Constraint(2,[2,1],"<=",50),
+//         new Constraint(2,[2,5],"<=",100),
+//         new Constraint(2,[2,3],"<=",90)
+//     ],
+//     [
+//         new Constraint(2,[1,0],">=",0),
+//         new Constraint(2,[0,1],">=",0)
+//     ]),
+//     new ObjectiveFunction(4,"max",[4,1,3,5],[
+//         new Constraint(4,[4,-6,-5,-4],">=",-20),
+//         new Constraint(4,[3,-2,4,1],"<=",10),
+//         new Constraint(4,[8,-3,3,2],"<=",20)
+//     ],
+//     [
+//         new Constraint(4,[1,0,0,0],">=",0),
+//         new Constraint(4,[0,1,0,0],">=",0),
+//         new Constraint(4,[0,0,1,0],">=",0),
+//         new Constraint(4,[0,0,0,1],">=",0)
+//     ])
+// ];
+// qs.forEach(objFn => objFn.solve());
+// qs[2].solve();
+// qs.at(-1).solve();
 
-constraintArray.push(new Constraint(2, [2, 1], "<=", 50),
-    new Constraint(2, [2, 5], "<=", 100),
-    new Constraint(2, [2, 3], "<=", 90));
 
-let nonNegativeConstraints = [new Constraint(2, [1, 0], ">=", 0),
-new Constraint(2, [0, 1], ">=", 0)]
+// new ObjectiveFunction(4,"max",
+//     [new MinifiedNumber(107),new MinifiedNumber(1), new MinifiedNumber(2), new MinifiedNumber(0)],
+//     [
+//     new Constraint(4,
+//         [
+//             new MinifiedNumber(14,3),
+//             new MinifiedNumber(1,3),
+//             new MinifiedNumber(-2),
+//             new MinifiedNumber(1)
+//         ],
+//             "<=",
+//             new MinifiedNumber(7,3)
+//     ),
+//     new Constraint(4,
+//         [
+//             new MinifiedNumber(16),
+//             new MinifiedNumber(1),
+//             new MinifiedNumber(-6),
+//             new MinifiedNumber(0)
+//         ],
+//             "<=",
+//             new MinifiedNumber(5)
+//     ),
+//     new Constraint(4,
+//         [
+//             new MinifiedNumber(3),
+//             new MinifiedNumber(-1),
+//             new MinifiedNumber(-1),
+//             new MinifiedNumber(0)
+//         ],
+//             "<=",
+//             new MinifiedNumber(0)
+//     )
+// ],
+// [
+//     new Constraint(4,
+//         [
+//             new MinifiedNumber(1),
+//             new MinifiedNumber(0),
+//             new MinifiedNumber(0),
+//             new MinifiedNumber(0)
+//         ],
+//             ">=",
+//             new MinifiedNumber(0)
+//     ),
+//     new Constraint(4,
+//         [
+//             new MinifiedNumber(0),
+//             new MinifiedNumber(1),
+//             new MinifiedNumber(0),
+//             new MinifiedNumber(0)
+//         ],
+//             ">=",
+//             new MinifiedNumber(0)
+//     ),
+//     new Constraint(4,
+//         [
+//             new MinifiedNumber(0),
+//             new MinifiedNumber(0),
+//             new MinifiedNumber(1),
+//             new MinifiedNumber(0)
+//         ],
+//             ">=",
+//             new MinifiedNumber(0)
+//     ),
+//     new Constraint(4,
+//         [
+//             new MinifiedNumber(0),
+//             new MinifiedNumber(0),
+//             new MinifiedNumber(0),
+//             new MinifiedNumber(1)
+//         ],
+//             ">=",
+//             new MinifiedNumber(0)
+//     )
+// ]).solve();
 
-let f1 = new ObjectiveFunction(2, "max", [4, 10], constraintArray, nonNegativeConstraints);
-// console.log(f1+"");
-// f1.printAllConstraints();
-// f1.convertToStandardForm();
-// console.log(f1+"");
-// f1.printAllConstraints();
-// console.log(f1.getInitialBasicFeasibleSolution());
-f1.solve();
-// f1.constraints.forEach(constraint => console.log(constraint + "" + constraint.variables));
-// console.log(f1.variables);
-// console.log(c1+"");
-
-[
-    new ObjectiveFunction(3,"max",[-1,3,-2],[
-        new Constraint(3,[3,-1,2],"<=",7),
-        new Constraint(3,[-2,4,0],"<=",12),
-        new Constraint(3,[-4,3,8],"<=",10)
-    ],
-    [
-        new Constraint(3,[1,0,0],">=",0),
-        new Constraint(3,[0,1,0],">=",0),
-        new Constraint(3,[0,0,1],">=",0)
-    ])].forEach(objFn => objFn.solve());
+module.exports = {
+    Constraint,
+    ObjectiveFunction
+};
