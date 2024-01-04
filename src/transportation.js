@@ -261,26 +261,4 @@ class Transportation {
     }
 }
 
-const p1 = new Transportation([
-    [6, 4, 1, 5],
-    [8, 9, 2, 7],
-    [4, 3, 6, 2]
-], [14, 16, 5], [6, 10, 15, 4]);
-
-// const p1 = new Transportation([
-//     [30,30,230],
-//     [90,45,170],
-//     [250,200,50]
-// ],[1,3,4],[4,2,2]);
-
-// const p1 = new Transportation([
-//     [95,80,70,60],
-//     [75,65,60,50],
-//     [70,45,50,40],
-//     [60,40,40,30]
-// ],[70,40,90,30],[40,50,60,60]);
-p1.findIBFSUsingNorthWestCorner();
-p1.findIBFSUsingRowMinima();
-p1.findIBFSUsingColumnMinima()
-p1.findIBFSUsingMatrixMinima();
-p1.findIBFSUsingVogelApproximation();
+module.exports = Transportation;

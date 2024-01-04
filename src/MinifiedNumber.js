@@ -1,28 +1,23 @@
-function MinifiedNumber(dividend, divisor = 1) {
+class MinifiedNumber {
+    constructor(dividend, divisor = 1) {
 
-    this.dividend = dividend;
-    this.divisor = divisor;
-    this.autoMinify = true;
-    this.doesItInfinite = !isFinite(dividend / divisor);
-    this.doesItPositiveInfinity = this.doesItInfinite && (dividend / divisor) > 0;
+        this.dividend = dividend;
+        this.divisor = divisor;
+        this.autoMinify = true;
+        this.doesItInfinite = !isFinite(dividend / divisor);
+        this.doesItPositiveInfinity = this.doesItInfinite && (dividend / divisor) > 0;
+        this.minify();
+    }
 
-    // this.onAutoMinify = function () {
-    //     this.autoMinify = true;
-    // }
-
-    // this.offAutoMinify = function () {
-    //     this.autoMinify = false;
-    // }
-
-    this.gcd = function (a, b) {
+    gcd(a, b) {
         while (b) {
-            if(a == 0){
+            if (a == 0) {
                 return b;
             }
-            if(b == 0){
+            if (b == 0) {
                 return a;
             }
-            if(a == b){
+            if (a == b) {
                 return a;
             }
             [a, b] = [b, a % b];
@@ -30,17 +25,16 @@ function MinifiedNumber(dividend, divisor = 1) {
         return a;
     }
 
-    this.lcm = function (a, b) {
-        // console.log(`a = ${a},b = ${b}, a*b = ${a*b}, gcd(a,b) = ${this.gcd(a,b)}, lcm = ${a*b/this.gcd(a,b)}`);
+    lcm(a, b) {
         return (a * b) / (this.gcd(a, b));
-    }
+    };
 
-    this.minify = function () {
+    minify() {
 
         let n = this.gcd(this.dividend, this.divisor);
         this.dividend = this.dividend / n;
         this.divisor = this.divisor / n;
-        
+
         if (this.divisor < 0) {
             if (this.dividend < 0) {
                 this.dividend = -this.dividend;
@@ -51,71 +45,67 @@ function MinifiedNumber(dividend, divisor = 1) {
             }
         }
         return this;
-    }
+    };
 
-    this.isNegative = function () {
+    isNegative() {
         return (this.dividend < 0) != (this.divisor < 0);
-    }
+    };
 
-    this.isPositive = function () {
+    isPositive() {
         return !this.isNegative();
-    }
+    };
 
-    this.getDividend = function () {
+    getDividend() {
         return this.dividend;
-    }
+    };
 
-    this.getDivisor = function () {
+    getDivisor() {
         return this.divisor;
-    }
+    };
 
-    this.changeValue = function (dividend, divisor = 1) {
+    changeValue(dividend, divisor = 1) {
         this.dividend = dividend;
         this.divisor = divisor;
         this.minify();
-    }
+    };
 
-    this.getValue = function (){
+    getValue() {
         return this.dividend / this.divisor;
-    }
+    };
 
-    this.add = function (n) {
+    add(n) {
         if (n instanceof MinifiedNumber) {
-            // let lcm = this.lcm(n.getDivisor(),this.divisor);
-            // return new MinifiedNumber(((lcm/this.divisor)*this.dividend)+((lcm/n.getDivisor())*n.getDividend()),lcm);
             return new MinifiedNumber((this.dividend * n.getDivisor()) + (n.getDividend() * this.divisor), this.divisor * n.getDivisor());
         } else {
             return new MinifiedNumber((this.dividend) + (n * this.divisor), this.divisor);
         }
-    }
+    };
 
-    this.multiply = function (n) {
+    multiply(n) {
         if (n instanceof MinifiedNumber) {
             return new MinifiedNumber(this.dividend * n.getDividend(), this.divisor * n.getDivisor());
         } else {
             return new MinifiedNumber((this.dividend * n), this.divisor);
         }
-    }
+    };
 
-    this.divide = function (n) {
+    divide(n) {
         if (n instanceof MinifiedNumber) {
             return new MinifiedNumber(this.dividend * n.getDivisor(), this.divisor * n.getDividend());
         } else {
             return new MinifiedNumber(this.dividend, this.divisor * n);
         }
-    }
+    };
 
-    this.subtract = function (n) {
+    subtract(n) {
         if (n instanceof MinifiedNumber) {
-            // let lcm = this.lcm(n.getDivisor(),this.divisor);
-            // return new MinifiedNumber(((lcm/this.divisor)*this.dividend)+((lcm/n.getDivisor())*n.getDividend()),lcm);
             return new MinifiedNumber((this.dividend * n.getDivisor()) - (n.getDividend() * this.divisor), this.divisor * n.getDivisor());
         } else {
             return new MinifiedNumber((this.dividend) - (n * this.divisor), this.divisor);
         }
-    }
+    };
 
-    this.min = function (a, b) {
+    min(a, b) {
 
         if (!(a instanceof MinifiedNumber)) {
             a = new MinifiedNumber(a);
@@ -136,29 +126,20 @@ function MinifiedNumber(dividend, divisor = 1) {
         }
 
         let lcm = this.lcm(a.getDivisor(), b.getDivisor());
-        // console.log(`a.getDisor() = ${a.getDivisor()} , a.getDividend() = ${a.getDividend()}`);
-        // console.log(`b.getDisor() = ${b.getDivisor()} , b.getDividend() = ${b.getDividend()}`);
         if (((lcm / a.getDivisor()) * a.getDividend()) < ((lcm / b.getDivisor()) * b.getDividend())) {
             return a;
         } else {
             return b;
         }
-    }
+    };
 
-    // this.valueOf = function(){
-    //     return this.dividend/this.divisor;
-    // }
-
-    this.toString = function () {
+    toString() {
         if (this.divisor == 1) {
             return `${this.dividend}`;
         } else {
             return `${this.dividend}/${this.divisor}`;
         }
-        console.log(globalThis);
-    }
-
-    this.minify();
+    };
 }
 
 module.exports = MinifiedNumber;
