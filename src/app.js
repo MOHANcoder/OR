@@ -80,7 +80,7 @@ new ObjectiveFunction(4,"max",
             ">=",
             new MinifiedNumber(0)
     )
-]).solve();
+],new ConsoleOutputGenerator("SIMPLEX")).solve();
 
 new ObjectiveFunction(3,"min",
     [new MinifiedNumber(1),new MinifiedNumber(-3), new MinifiedNumber(2)],
@@ -141,7 +141,7 @@ new ObjectiveFunction(3,"min",
             ">=",
             new MinifiedNumber(0)
     )
-]).solve();
+],new ConsoleOutputGenerator("SIMPLEX")).solve();
 
 let generator = new ConsoleOutputGenerator("ASSIGNMENT");
 generator = new HTMLOutputGenerator("ASSIGNMENT");

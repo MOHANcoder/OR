@@ -58,10 +58,14 @@ class Constraint {
             this.symbol = "=";
         }
     }
+
+    getTotalCost(valuesArray){
+        return this.coEfficientsArray.reduce((total,coEfficient,index)=>total + coEfficient * valuesArray[index],0);
+    }
 }
 
 class ObjectiveFunction {
-    constructor(noOfDecisionVariables, type, coEfficientsArray, constraints, nonNegativeConstraints,outputGenerator) {
+    constructor(noOfDecisionVariables, type, coEfficientsArray, constraints, nonNegativeConstraints, outputGenerator) {
         this.noOfDecisionVariables = noOfDecisionVariables;
         this.constraints = constraints;
         this.coEfficientsArray = coEfficientsArray;
@@ -145,6 +149,10 @@ class ObjectiveFunction {
         }
     }
 
+    getTotalCost(valuesArray){
+        return this.coEfficientsArray.reduce((total,coEfficient,index)=>total + coEfficient * valuesArray[index],0);
+    }
+
     solve() {
         this.convertToStandardForm();
         let IBFS = this.getInitialBasicFeasibleSolution();
@@ -166,6 +174,7 @@ class ObjectiveFunction {
         let cj = this.coEfficientsArray;
         let isFirstIteration = true;
         let columnsToSkip = 3;
+        let zjminuscj, iteration = 1;
         do {
             if (!isFirstIteration) {
                 // Finding pivotal element and moving to next iteration
@@ -173,17 +182,11 @@ class ObjectiveFunction {
                 zj.forEach(z => {
                     e = z.min(z, e);
                 });
-                // console.log("zj values ....");
-                // console.log(zj.join(" "));
-
-                if(this.isOutputGeneratorAdded){
-                    this.outputGenerator.generate(simplexTable,"zj values");
-                }
 
                 let pivotalColumn = zj.indexOf(e);
                 let row, pivotalRow = 0;
                 let pivot, prevValue = new MinifiedNumber(Infinity);
-                console.log("min in z = ", e + "", " at index  = ", pivotalColumn);
+
                 for (row = 0; row < simplexTable.length; row++) {
                     if (simplexTable[row][pivotalColumn + columnsToSkip].isNegative()) {
                         continue;
@@ -196,10 +199,15 @@ class ObjectiveFunction {
                     }
                 }
                 if (pivot === undefined) {
-                    console.log("This system of equations has no solution or has many solutions or unbounded solution.");
+                    if (this.isOutputGeneratorAdded) {
+                        this.outputGenerator.showMessage("This system of equations has no solution or has many solutions or unbounded solution.");
+                    }
                     return;
                 }
-                console.log("pivotal row = ", pivotalRow, "pivotal column = ", pivotalColumn, "pivot  = ", pivot + "");
+                if (this.isOutputGeneratorAdded) {
+                    this.outputGenerator.showMessage(`min in z = ${e} at index  = ${pivotalColumn}`);
+                    this.outputGenerator.showMessage(`pivotal row = ${pivotalRow}, pivotal column = ${pivotalColumn}, pivot  = ${pivot}`);
+                }
                 simplexTable[pivotalRow][0] = cj[pivotalColumn];
                 simplexTable[pivotalRow][1].changeValue(pivotalColumn);
                 let modifiedSimplexTable = new Array(simplexTable.length);
@@ -233,17 +241,31 @@ class ObjectiveFunction {
                 }
             }
 
-            zj = zj.map((z, i) => z.subtract(cj[i])); //Calculating the zj-cj values
+            zjminuscj = zj.map((z, i) => z.subtract(cj[i])); //Calculating the zj-cj values
 
             isFirstIteration = false;
 
-            if (this.isOutputGeneratorAdded){
-                this.outputGenerator.generate(simplexTable);
+            if (this.isOutputGeneratorAdded) {
+                this.outputGenerator.generate(simplexTable, `Iteration - ${iteration++}`, {
+                    zj, cj, zjminuscj
+                });
             }
+
+            zj = zjminuscj;
 
             // this.displaySimplexTable(simplexTable);
 
-        } while (zj.some(z => z.isNegative())); //Check for any negative zj-cj values
+        } while (zjminuscj.some(z => z.isNegative())); //Check for any negative zj-cj values
+        let values = Array.from({length:simplexTable[0].length - 3},_ => 0);
+        for(let i=0;i<this.constraints.length;i++){
+            values[simplexTable[i][1]] = simplexTable[i][2].getValue();
+        }
+        let cost = this.getTotalCost(values);
+        if(this.isOutputGeneratorAdded){
+            this.outputGenerator.showMessage("All zj-cj are positive.");
+            this.outputGenerator.showMessage(`The total cost = ${cost}`);
+        }
+        return cost;
     }
 
     toString() {

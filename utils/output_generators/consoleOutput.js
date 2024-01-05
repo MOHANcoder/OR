@@ -38,14 +38,26 @@ class ConsoleOutputGenerator {
     }
 
     generateForSimplexAlgorithm(simplexTable, message, options) {
-        let titles = ['CB', 'YB', 'XB'];
+        let tableColumns = ['CB', 'YB', 'XB'];
         for (let i = 1; i <= simplexTable[0].length - 3; i++) {
-            titles.push("Y" + i);
+            tableColumns.push("Y" + i);
         }
-        console.log(simplexTable);
-        console.table(simplexTable);
+
+        let simplexTableCopy = [];
+        simplexTable.forEach(row => {
+            let rowObject = {};
+            row.forEach((col, i) => {
+                if (i == 1) {
+                    let t = col + 1;
+                    rowObject[tableColumns[i]] = "Y" + t;
+                } else {
+                    rowObject[tableColumns[i]] = col + "";
+                }
+            });
+            simplexTableCopy.push(rowObject);
+        });
+
         if (options === undefined) {
-            let simplexTableCopy = copy2d([titles, ...simplexTable]);
             if (message === undefined) {
                 console.table(simplexTableCopy);
             } else {
@@ -53,25 +65,32 @@ class ConsoleOutputGenerator {
                 console.table(simplexTableCopy);
             }
         } else {
-            const { step, payload } = options;
-            let simplexTableCopy;
-            switch (step) {
-                case "ZJCALC":
-                    const {zj} = payload;
-                    const zjcopy = new Array(zj.length+3);
-                    zjcopy.push("");
-                    zjcopy.push("");
-                    zjcopy.push("");
-                    zjcopy.push(...zj);
-                    simplexTableCopy= copy2d([titles, ...simplexTable,zjcopy]);
-                    for (let row of simplexTableCopy) {
-                        row[1] = "Y" + (row[1].add(1));
-                    }
-                    console.log(simplexTableCopy+"");
-                    console.table(simplexTable);
-                    console.table(simplexTableCopy);
-                    break;
+            const { zj, cj, zjminuscj } = options;
+            let zjRowObject = {}, cjRowObject = {}, zjminuscjRowObject = {};
+            let nextIndex = 0;
+            for (let i = 0; i < simplexTable[0].length; i++) {
+                if (i < 2) {
+                    zjRowObject[tableColumns[i]] = "-";
+                    cjRowObject[tableColumns[i]] = "-";
+                    zjminuscjRowObject[tableColumns[i]] = "-";
+                } else if (i == 2) {
+                    zjRowObject[tableColumns[i]] = "zj";
+                    cjRowObject[tableColumns[i]] = "cj";
+                    zjminuscjRowObject[tableColumns[i]] = "zj - cj";
+                } else {
+                    zjRowObject[tableColumns[i]] = zj[nextIndex] + "";
+                    cjRowObject[tableColumns[i]] = cj[nextIndex] + "";
+                    zjminuscjRowObject[tableColumns[i]] = zjminuscj[nextIndex] + "";
+                    nextIndex++;
+                }
             }
+            simplexTableCopy.push(zjRowObject, cjRowObject, zjminuscjRowObject);
+        }
+        if (message === undefined) {
+            console.table(simplexTableCopy);
+        } else {
+            console.log(message);
+            console.table(simplexTableCopy);
         }
     }
 
@@ -81,7 +100,7 @@ class ConsoleOutputGenerator {
                 this.generateForAssignmentProblem(costTable, message, options);
                 break;
             case "SIMPLEX":
-                this.generateForSimplexAlgorithm(costTable, message);
+                this.generateForSimplexAlgorithm(costTable, message, options);
                 break;
         }
     }
