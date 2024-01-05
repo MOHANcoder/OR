@@ -1,7 +1,7 @@
 const MinifiedNumber = require("./MinifiedNumber");
 
 class Constraint {
-    constructor(noOfDecisionVariables, coEfficientsArray, symbol, constant) {
+    constructor(noOfDecisionVariables, coEfficientsArray, symbol, constant, outputGenerator) {
         this.noOfDecisionVariables = noOfDecisionVariables;
         this.coEfficientsArray = coEfficientsArray;
         this.symbol = symbol;
@@ -17,6 +17,8 @@ class Constraint {
             }
             this.constant = (this.constant).multiply(-1);
         }
+        this.outputGenerator = outputGenerator;
+        this.isOutputGeneratorAdded = outputGenerator !== undefined;
     }
 
     toString() {
@@ -59,7 +61,7 @@ class Constraint {
 }
 
 class ObjectiveFunction {
-    constructor(noOfDecisionVariables, type, coEfficientsArray, constraints, nonNegativeConstraints) {
+    constructor(noOfDecisionVariables, type, coEfficientsArray, constraints, nonNegativeConstraints,outputGenerator) {
         this.noOfDecisionVariables = noOfDecisionVariables;
         this.constraints = constraints;
         this.coEfficientsArray = coEfficientsArray;
@@ -75,6 +77,9 @@ class ObjectiveFunction {
         for (let i = 0; i < this.constraints.length; i++) {
             this.variables.push(new Array());
         }
+
+        this.outputGenerator = outputGenerator;
+        this.isOutputGeneratorAdded = outputGenerator !== undefined;
     }
 
     convertToStandardForm() {
@@ -129,7 +134,7 @@ class ObjectiveFunction {
         this.nonNegativeConstraints.forEach(constraint => console.log(constraint + ""));
     }
 
-    displaySimplexTable (simplexTable) {
+    displaySimplexTable(simplexTable) {
         let title = "CB|YB|XB";
         for (let i = 1; i <= simplexTable[0].length - 3; i++) {
             title += "|Y" + i;
@@ -168,8 +173,12 @@ class ObjectiveFunction {
                 zj.forEach(z => {
                     e = z.min(z, e);
                 });
-                console.log("zj values ....");
-                console.log(zj.join(" "));
+                // console.log("zj values ....");
+                // console.log(zj.join(" "));
+
+                if(this.isOutputGeneratorAdded){
+                    this.outputGenerator.generate(simplexTable,"zj values");
+                }
 
                 let pivotalColumn = zj.indexOf(e);
                 let row, pivotalRow = 0;
@@ -228,7 +237,11 @@ class ObjectiveFunction {
 
             isFirstIteration = false;
 
-            this.displaySimplexTable(simplexTable);
+            if (this.isOutputGeneratorAdded){
+                this.outputGenerator.generate(simplexTable);
+            }
+
+            // this.displaySimplexTable(simplexTable);
 
         } while (zj.some(z => z.isNegative())); //Check for any negative zj-cj values
     }
