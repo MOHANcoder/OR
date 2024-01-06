@@ -110,6 +110,22 @@ class HTMLOutputGenerator {
         }
     }
 
+    generateForTransportationProblem(costTable,message,options){
+        if (options === undefined) {
+            if (message !== undefined) {
+                this.showMessage(message);
+            }
+            this.#htmlContent += this.getHTMLTableFrom2dArray(costTable);
+        } else {
+            const { origins, row, column, cost } = options;
+            costTable[row][column] += `- [${cost}]`;
+            costTable.forEach((row, i) => {
+                if (i < costTable.length-1) { row[row.length - 1] = origins[i] }
+            });
+            this.#htmlContent += this.getHTMLTableFrom2dArray(costTable);
+        }
+    }
+
     generate(costTable, message, options) {
         switch (this.problemType) {
             case "ASSIGNMENT":
@@ -117,6 +133,9 @@ class HTMLOutputGenerator {
                 break;
             case "SIMPLEX":
                 this.generateForSimplexAlgorithm(costTable, message, options);
+                break;
+            case "TRANSPORTATION":
+                this.generateForTransportationProblem(costTable,message,options);
                 break;
         }
     }

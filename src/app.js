@@ -179,11 +179,13 @@ p = new Assignment([[85,75,65,125,75],[90,78,66,132,78],[75,66,57,114,69],[80,72
 console.log(p.solve());
 generator.showMessage("Next problem");
 fs.appendFileSync('index.html',generator.getContent(),'utf8');
+let transportationGenerator = new ConsoleOutputGenerator("TRANSPORTATION");
+transportationGenerator = new HTMLOutputGenerator("TRANSPORTATION");
 const p1 = new Transportation([
     [6, 4, 1, 5],
     [8, 9, 2, 7],
     [4, 3, 6, 2]
-], [14, 16, 5], [6, 10, 15, 4]);
+], [14, 16, 5], [6, 10, 15, 4],transportationGenerator);
 
 // const p1 = new Transportation([
 //     [30,30,230],
@@ -197,8 +199,10 @@ const p1 = new Transportation([
 //     [70,45,50,40],
 //     [60,40,40,30]
 // ],[70,40,90,30],[40,50,60,60]);
-// p1.findIBFSUsingNorthWestCorner();
-// p1.findIBFSUsingRowMinima();
-// p1.findIBFSUsingColumnMinima()
-// p1.findIBFSUsingMatrixMinima();
-// p1.findIBFSUsingVogelApproximation();
+p1.findIBFSUsingNorthWestCorner();
+p1.findIBFSUsingRowMinima();
+p1.findIBFSUsingColumnMinima()
+p1.findIBFSUsingMatrixMinima();
+p1.findIBFSUsingVogelApproximation();
+
+fs.appendFileSync('index.html',transportationGenerator.getContent(),'utf8');

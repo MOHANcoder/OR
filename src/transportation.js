@@ -1,8 +1,15 @@
+const copy2d = require("../utils/copy2d");
+
 class Transportation {
-    constructor(costTable, origins, destinations) {
+    constructor(costTable, origins, destinations, outputGenerator) {
         this.costTable = costTable;
         this.origins = origins;
         this.destinations = destinations;
+        this.outputGenerator = outputGenerator;
+        this.isOutputGeneratorAdded = outputGenerator !== undefined;
+        if (this.isOutputGeneratorAdded) {
+            this.outputGenerator.generate(this.costTable, "Initial Table : ");
+        }
     }
 
     balance() {
@@ -35,7 +42,7 @@ class Transportation {
             this.origins[row] = 0;
             this.destinations[column] = 0;
         }
-        return [cost, availableQuantity];
+        return [cost, availableQuantity, row, column];
     }
 
     northWestCorner(availableQuantity) {
@@ -245,17 +252,29 @@ class Transportation {
         let availableQuantity = this.origins.reduce((previous, current) => previous + current);
         let copyOfOrigins = [...this.origins];
         let copyOfDestinations = [...this.destinations];
+        let costTableCopy = copy2d(this.costTable);
+        costTableCopy.forEach((row, i) => row.push(this.origins[i]));
+        costTableCopy.push(this.destinations);
+        let row, column;
         while (availableQuantity > 0) {
-            switch(IBFSFindingMethodName) {
-                case "NWC" :[cost, availableQuantity] = this.northWestCorner(availableQuantity);break;
-                case "RM" :[cost, availableQuantity] = this.rowMinima(availableQuantity);break;
-                case "CM" :[cost, availableQuantity] = this.columnMinima(availableQuantity);break;
-                case "MM" :[cost, availableQuantity] = this.matrixMinima(availableQuantity);break;
-                case "VA" :[cost, availableQuantity] = this.vogelApproximation(availableQuantity);break;
+            switch (IBFSFindingMethodName) {
+                case "NWC": [cost, availableQuantity, row, column] = this.northWestCorner(availableQuantity); break;
+                case "RM": [cost, availableQuantity, row, column] = this.rowMinima(availableQuantity); break;
+                case "CM": [cost, availableQuantity, row, column] = this.columnMinima(availableQuantity); break;
+                case "MM": [cost, availableQuantity, row, column] = this.matrixMinima(availableQuantity); break;
+                case "VA": [cost, availableQuantity, row, column] = this.vogelApproximation(availableQuantity); break;
             }
             totalCost += cost;
+            if (this.isOutputGeneratorAdded) {
+                this.outputGenerator.generate(costTableCopy, "After the allocation : ", {
+                   origins:this.origins, row, column, cost
+                });
+                this.outputGenerator.showMessage(`Now,Total Cost for this Allocation = ${cost} Available Quantity = ${availableQuantity}`);
+            }
         }
-        console.log(totalCost);
+        if(this.isOutputGeneratorAdded){
+            this.outputGenerator.showMessage(`Finished : Total cost = ${totalCost}`);
+        }
         this.origins = [...copyOfOrigins];
         this.destinations = [...copyOfDestinations];
     }

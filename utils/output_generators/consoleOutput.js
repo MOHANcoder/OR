@@ -72,7 +72,7 @@ class ConsoleOutputGenerator {
                     zjRowObject[tableColumns[i]] = "zj";
                     cjRowObject[tableColumns[i]] = "cj";
                     zjminuscjRowObject[tableColumns[i]] = "zj - cj";
-                } else if(i > 2) {
+                } else if (i > 2) {
                     zjRowObject[tableColumns[i]] = zj[nextIndex] + "";
                     cjRowObject[tableColumns[i]] = cj[nextIndex] + "";
                     zjminuscjRowObject[tableColumns[i]] = zjminuscj[nextIndex] + "";
@@ -89,6 +89,22 @@ class ConsoleOutputGenerator {
         }
     }
 
+    generateForTransportationProblem(costTable, message, options) {
+        if (options === undefined) {
+            if (message !== undefined) {
+                this.showMessage(message);
+            }
+            console.table(costTable);
+        } else {
+            const { origins, row, column, cost } = options;
+            costTable[row][column] += `- [${cost}]`;
+            costTable.forEach((row, i) => {
+                if (i < costTable.length-1) { row[row.length - 1] = origins[i] }
+            });
+            console.table(costTable);
+        }
+    }
+
     generate(costTable, message, options) {
         switch (this.problemType) {
             case "ASSIGNMENT":
@@ -96,6 +112,9 @@ class ConsoleOutputGenerator {
                 break;
             case "SIMPLEX":
                 this.generateForSimplexAlgorithm(costTable, message, options);
+                break;
+            case "TRANSPORTATION":
+                this.generateForTransportationProblem(costTable, message, options);
                 break;
         }
     }
