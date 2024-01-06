@@ -2,16 +2,16 @@ const copy2d = require("../copy2d");
 
 class HTMLOutputGenerator {
     #htmlContent;
-    constructor(problemType,options) {
+    constructor(problemType) {
         this.problemType = problemType;
         this.#htmlContent = "";
     }
 
-    clearContent(){
+    clearContent() {
         this.#htmlContent = "";
     }
 
-    getContent(){
+    getContent() {
         return this.#htmlContent;
     }
 
@@ -21,13 +21,13 @@ class HTMLOutputGenerator {
                     <tr>
                         <th></th>
                         ${(() => {
-                            let headings = "";
-                            for (let i = 0; i < table[0].length; i++) {
-                                headings += `<th>${i}</th>`;
-                            }
-                            return headings;
-                        })()
-                    }
+                let headings = "";
+                for (let i = 0; i < table[0].length; i++) {
+                    headings += `<th>${i}</th>`;
+                }
+                return headings;
+            })()
+            }
                     </tr>
                 </thead>
                 <tbody>
@@ -75,10 +75,48 @@ class HTMLOutputGenerator {
         }
     }
 
+    generateForSimplexAlgorithm(simplexTable, message, options) {
+        if (options === undefined) {
+            this.showMessage(message);
+            this.#htmlContent += this.getHTMLTableFrom2dArray(simplexTable);
+        } else {
+            const { zj, cj, zjminuscj } = options;
+            let headings = ['CB', 'YB', 'XB'];
+            for (let i = 1; i <= simplexTable[0].length - 3; i++) {
+                headings.push("Y" + i);
+            }
+            let simplexTableCopy = [];
+            simplexTableCopy.push(headings);
+            simplexTable.forEach(row => {
+                let rowObject = [];
+                row.forEach((col, i) => {
+                    if (i == 1) {
+                        rowObject.push("Y" + col.add(1));
+                    } else {
+                        rowObject.push(col + "");
+                    }
+                });
+                simplexTableCopy.push(rowObject);
+            });
+            simplexTableCopy.push(['','','zj',...zj.map(z=>z+"")]);
+            simplexTableCopy.push(['','','cj',...cj.map(z=>z+"")]);
+            simplexTableCopy.push(['','','zj - cj',...zjminuscj.map(z=>z+"")]);
+            if (message === undefined) {
+                this.#htmlContent += this.getHTMLTableFrom2dArray(simplexTableCopy);
+            } else {
+                this.showMessage(message);
+                this.#htmlContent += this.getHTMLTableFrom2dArray(simplexTableCopy);
+            }
+        }
+    }
+
     generate(costTable, message, options) {
         switch (this.problemType) {
             case "ASSIGNMENT":
                 this.generateForAssignmentProblem(costTable, message, options);
+                break;
+            case "SIMPLEX":
+                this.generateForSimplexAlgorithm(costTable, message, options);
                 break;
         }
     }

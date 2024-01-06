@@ -48,8 +48,7 @@ class ConsoleOutputGenerator {
             let rowObject = {};
             row.forEach((col, i) => {
                 if (i == 1) {
-                    let t = col + 1;
-                    rowObject[tableColumns[i]] = "Y" + t;
+                    rowObject[tableColumns[i]] = "Y" + col.add(1);
                 } else {
                     rowObject[tableColumns[i]] = col + "";
                 }
@@ -69,15 +68,11 @@ class ConsoleOutputGenerator {
             let zjRowObject = {}, cjRowObject = {}, zjminuscjRowObject = {};
             let nextIndex = 0;
             for (let i = 0; i < simplexTable[0].length; i++) {
-                if (i < 2) {
-                    zjRowObject[tableColumns[i]] = "-";
-                    cjRowObject[tableColumns[i]] = "-";
-                    zjminuscjRowObject[tableColumns[i]] = "-";
-                } else if (i == 2) {
+                if (i == 2) {
                     zjRowObject[tableColumns[i]] = "zj";
                     cjRowObject[tableColumns[i]] = "cj";
                     zjminuscjRowObject[tableColumns[i]] = "zj - cj";
-                } else {
+                } else if(i > 2) {
                     zjRowObject[tableColumns[i]] = zj[nextIndex] + "";
                     cjRowObject[tableColumns[i]] = cj[nextIndex] + "";
                     zjminuscjRowObject[tableColumns[i]] = zjminuscj[nextIndex] + "";

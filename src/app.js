@@ -5,6 +5,7 @@ const {ObjectiveFunction,Constraint} = require("./simplex.js");
 const ConsoleOutputGenerator = require("../utils/output_generators/consoleOutput.js");
 const HTMLOutputGenerator = require("../utils/output_generators/htmlOutput.js");
 const fs = require("fs");
+let simplexGenerator = new HTMLOutputGenerator("SIMPLEX");
 new ObjectiveFunction(4,"max",
     [new MinifiedNumber(15),new MinifiedNumber(6), new MinifiedNumber(9), new MinifiedNumber(2)],
     [
@@ -80,7 +81,7 @@ new ObjectiveFunction(4,"max",
             ">=",
             new MinifiedNumber(0)
     )
-],new ConsoleOutputGenerator("SIMPLEX")).solve();
+],simplexGenerator).solve();
 
 new ObjectiveFunction(3,"min",
     [new MinifiedNumber(1),new MinifiedNumber(-3), new MinifiedNumber(2)],
@@ -141,7 +142,9 @@ new ObjectiveFunction(3,"min",
             ">=",
             new MinifiedNumber(0)
     )
-],new ConsoleOutputGenerator("SIMPLEX")).solve();
+],simplexGenerator).solve();
+
+fs.writeFileSync('index.html',simplexGenerator.getContent(),'utf-8');
 
 let generator = new ConsoleOutputGenerator("ASSIGNMENT");
 generator = new HTMLOutputGenerator("ASSIGNMENT");
@@ -175,7 +178,7 @@ generator.showMessage("Next problem");
 p = new Assignment([[85,75,65,125,75],[90,78,66,132,78],[75,66,57,114,69],[80,72,60,120,72],[76,64,56,112,68]],generator);
 console.log(p.solve());
 generator.showMessage("Next problem");
-fs.writeFileSync('index.html',generator.getContent(),'utf8');
+fs.appendFileSync('index.html',generator.getContent(),'utf8');
 const p1 = new Transportation([
     [6, 4, 1, 5],
     [8, 9, 2, 7],
@@ -194,8 +197,8 @@ const p1 = new Transportation([
 //     [70,45,50,40],
 //     [60,40,40,30]
 // ],[70,40,90,30],[40,50,60,60]);
-p1.findIBFSUsingNorthWestCorner();
-p1.findIBFSUsingRowMinima();
-p1.findIBFSUsingColumnMinima()
-p1.findIBFSUsingMatrixMinima();
-p1.findIBFSUsingVogelApproximation();
+// p1.findIBFSUsingNorthWestCorner();
+// p1.findIBFSUsingRowMinima();
+// p1.findIBFSUsingColumnMinima()
+// p1.findIBFSUsingMatrixMinima();
+// p1.findIBFSUsingVogelApproximation();
