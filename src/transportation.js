@@ -10,6 +10,7 @@ class Transportation {
         if (this.isOutputGeneratorAdded) {
             this.outputGenerator.generate(this.costTable, "Initial Table : ");
         }
+        this.balance();
     }
 
     balance() {
@@ -18,9 +19,11 @@ class Transportation {
         if (sumOfOrigins < sumOfDesinations) {
             // Adding a zero filled row
             this.costTable.push(Array.from({ length: this.costTable[0].length }, _ => 0));
+            this.origins.push(sumOfDesinations - sumOfOrigins);
         } else if (sumOfOrigins > sumOfDesinations) {
             // Adding a zero filled column
             this.costTable.forEach(row => row.push(0));
+            this.destinations.push(sumOfOrigins - sumOfDesinations);
         }
     }
 
