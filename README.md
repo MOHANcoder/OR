@@ -3,7 +3,7 @@ A Simple NPM package for solving Operations Research Problems
 
 Usage :
 
-Assignment Problem
+## Assignment Problem
 ```js
 const {
     Assignment,
@@ -31,11 +31,11 @@ fs.writeFileSync("index.html",`
 </style>
 </head>
 <body> ${assignmentHTMLGenerator.getContent()} </body></html>`,'utf8');
+```
 
 
 
-
-#Transportation Problem:
+## Transportation Problem:
 
 ```js
 const {
@@ -84,10 +84,10 @@ fs.writeFileSync("index.html",`
 </style>
 </head>
 <body> ${transportationHTMLGenerator.getContent()} </body></html>`,'utf8');
+```
 
 
-
-#Simplex Algorithm:
+## Simplex Algorithm:
 
 ```js
 const {
@@ -253,4 +253,4 @@ fs.writeFileSync("index.html",`
 </style>
 </head>
 <body> ${simplexHTMLGenerator.getContent()} </body></html>`,'utf8');
-```js
+```
