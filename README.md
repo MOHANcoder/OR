@@ -3,6 +3,7 @@ A Simple NPM package for solving Operations Research Problems
 
 Usage :
 
+Assignment Problem
 ```js
 const {
     Assignment,
@@ -31,3 +32,226 @@ fs.writeFileSync("index.html",`
 </head>
 <body> ${assignmentHTMLGenerator.getContent()} </body></html>`,'utf8');
 
+```js
+
+
+Transportation Problem:
+
+```js
+const {
+    Transportation,
+    ConsoleOutputGenerator,
+    HTMLOutputGenerator
+} = require("operations-research");
+
+const fs = require("fs");
+
+
+let transportationConsoleGenerator = new ConsoleOutputGenerator("TRANSPORTATION");
+let transportationHTMLGenerator = new HTMLOutputGenerator("TRANSPORTATION");
+
+let transportationSample1 = new Transportation([
+    [6, 4, 1, 5],
+    [8, 9, 2, 7],
+    [4, 3, 6, 2]
+], [14, 16, 5], [6, 10, 15, 4],transportationConsoleGenerator);
+let transportationSample2 = new Transportation([
+    [95,80,70,60],
+    [75,65,60,50],
+    [70,45,50,40],
+    [60,40,40,30]
+],[70,40,90,30],[40,50,60,60],transportationHTMLGenerator);
+
+transportationSample1.findIBFSUsingNorthWestCorner();
+transportationSample1.findIBFSUsingRowMinima();
+transportationSample1.findIBFSUsingColumnMinima()
+transportationSample1.findIBFSUsingMatrixMinima();
+transportationSample1.findIBFSUsingVogelApproximation();
+
+
+transportationSample2.findIBFSUsingNorthWestCorner();
+transportationSample2.findIBFSUsingRowMinima();
+transportationSample2.findIBFSUsingColumnMinima()
+transportationSample2.findIBFSUsingMatrixMinima();
+transportationSample2.findIBFSUsingVogelApproximation();
+
+//Now writing the html content that are captured by the generator into index.html
+
+fs.writeFileSync("index.html",`
+<html>
+<head><title>Operations Research</title>
+<style> table,td{ border:1px solid; }
+</style>
+</head>
+<body> ${transportationHTMLGenerator.getContent()} </body></html>`,'utf8');
+
+```js
+
+
+Simplex Algorithm:
+
+```js
+const {
+    Constraint,
+    ObjectiveFunction,
+    MinifiedNumber,
+    ConsoleOutputGenerator,
+    HTMLOutputGenerator
+} = require("operations-research");
+
+const fs = require("fs");
+
+let simplexConsoleGenerator = new ConsoleOutputGenerator("SIMPLEX");
+let simplexHTMLGenerator = new HTMLOutputGenerator("SIMPLEX");
+
+let simplexSample1 = new ObjectiveFunction(4, "max",
+    [new MinifiedNumber(15), new MinifiedNumber(6), new MinifiedNumber(9), new MinifiedNumber(2)],
+    [
+        new Constraint(4,
+            [
+                new MinifiedNumber(2),
+                new MinifiedNumber(1),
+                new MinifiedNumber(5),
+                new MinifiedNumber(6, 10)
+            ],
+            "<=",
+            new MinifiedNumber(10)
+        ),
+        new Constraint(4,
+            [
+                new MinifiedNumber(3),
+                new MinifiedNumber(1),
+                new MinifiedNumber(3),
+                new MinifiedNumber(1, 4)
+            ],
+            "<=",
+            new MinifiedNumber(12)
+        ),
+        new Constraint(4,
+            [
+                new MinifiedNumber(7),
+                new MinifiedNumber(0),
+                new MinifiedNumber(0),
+                new MinifiedNumber(1)
+            ],
+            "<=",
+            new MinifiedNumber(35)
+        )
+    ],
+    [
+        new Constraint(4,
+            [
+                new MinifiedNumber(1),
+                new MinifiedNumber(0),
+                new MinifiedNumber(0),
+                new MinifiedNumber(0)
+            ],
+            ">=",
+            new MinifiedNumber(0)
+        ),
+        new Constraint(4,
+            [
+                new MinifiedNumber(0),
+                new MinifiedNumber(1),
+                new MinifiedNumber(0),
+                new MinifiedNumber(0)
+            ],
+            ">=",
+            new MinifiedNumber(0)
+        ),
+        new Constraint(4,
+            [
+                new MinifiedNumber(0),
+                new MinifiedNumber(0),
+                new MinifiedNumber(1),
+                new MinifiedNumber(0)
+            ],
+            ">=",
+            new MinifiedNumber(0)
+        ),
+        new Constraint(4,
+            [
+                new MinifiedNumber(0),
+                new MinifiedNumber(0),
+                new MinifiedNumber(0),
+                new MinifiedNumber(1)
+            ],
+            ">=",
+            new MinifiedNumber(0)
+        )
+    ], simplexConsoleGenerator);
+
+let simplexSample2 = new ObjectiveFunction(3, "min",
+    [new MinifiedNumber(1), new MinifiedNumber(-3), new MinifiedNumber(2)],
+    [
+        new Constraint(3,
+            [
+                new MinifiedNumber(3),
+                new MinifiedNumber(-1),
+                new MinifiedNumber(2)
+            ],
+            "<=",
+            new MinifiedNumber(7)
+        ),
+        new Constraint(3,
+            [
+                new MinifiedNumber(-2),
+                new MinifiedNumber(4),
+                new MinifiedNumber(0)
+            ],
+            "<=",
+            new MinifiedNumber(12)
+        ),
+        new Constraint(3,
+            [
+                new MinifiedNumber(-4),
+                new MinifiedNumber(3),
+                new MinifiedNumber(8)
+            ],
+            "<=",
+            new MinifiedNumber(10)
+        )
+    ],
+    [
+        new Constraint(3,
+            [
+                new MinifiedNumber(1),
+                new MinifiedNumber(0),
+                new MinifiedNumber(0)
+            ],
+            ">=",
+            new MinifiedNumber(0)
+        ),
+        new Constraint(3,
+            [
+                new MinifiedNumber(0),
+                new MinifiedNumber(1),
+                new MinifiedNumber(0)
+            ],
+            ">=",
+            new MinifiedNumber(0)
+        ),
+        new Constraint(3,
+            [
+                new MinifiedNumber(0),
+                new MinifiedNumber(0),
+                new MinifiedNumber(1)
+            ],
+            ">=",
+            new MinifiedNumber(0)
+        )
+    ], simplexHTMLGenerator);
+
+simplexSample1.solve();
+simplexSample2.solve();
+
+//Now writing the html content that are captured by the generator into index.html
+
+fs.writeFileSync("index.html",`
+<html>
+<head><title>Operations Research</title>
+<style> table,td{ border:1px solid; }
+</style>
+</head>
+<body> ${simplexHTMLGenerator.getContent()} </body></html>`,'utf8');
+```js
