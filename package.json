@@ -7,7 +7,10 @@
   },
   "author": "Mohan S , https://www.github.com/MOHANcoder",
   "license": "MIT",
-  "repository": "https://www.github.com/MOHANcoder/operations-research",
+  "repository": {
+    "type" : "git",
+    "url" : "https://www.github.com/MOHANcoder/operations-research.git"
+  },
   "keywords": [
     "operations research",
     "Simplex procedure",
