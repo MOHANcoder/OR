@@ -32,10 +32,10 @@ fs.writeFileSync("index.html",`
 </head>
 <body> ${assignmentHTMLGenerator.getContent()} </body></html>`,'utf8');
 
-```js
 
 
-Transportation Problem:
+
+#Transportation Problem:
 
 ```js
 const {
@@ -85,10 +85,9 @@ fs.writeFileSync("index.html",`
 </head>
 <body> ${transportationHTMLGenerator.getContent()} </body></html>`,'utf8');
 
-```js
 
 
-Simplex Algorithm:
+#Simplex Algorithm:
 
 ```js
 const {
