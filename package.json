@@ -1,12 +1,22 @@
 {
   "name": "operations-research",
   "version": "1.0.0",
-  "description": "Operations Research",
-  "main": "app.js",
+  "description": "Step By Step solvers for Operations Research problems, Features to export the steps and calculations as a html content or in a console.",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node ./src/app.js"
   },
-  "author": "S.Mohan",
-  "license": "MIT"
+  "author": "Mohan S , https://www.github.com/MOHANcoder",
+  "license": "MIT",
+  "repository": "https://www.github.com/MOHANcoder/operations-research",
+  "keywords": [
+    "operations research",
+    "Simplex procedure",
+    "Assignment Problem",
+    "Hungarian Algorithm",
+    "linear programming",
+    "transportation problem"
+  ],
+  "homepage": "",
+  "main": "index.js"
 }
