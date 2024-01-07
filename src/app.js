@@ -144,7 +144,9 @@ new ObjectiveFunction(3,"min",
     )
 ],simplexGenerator).solve();
 
-fs.writeFileSync('index.html',simplexGenerator.getContent(),'utf-8');
+fs.writeFileSync('index.html',`<html><head><link rel='stylesheet' href='style.css'/></head><body>`,'utf-8');
+
+fs.appendFileSync('index.html',simplexGenerator.getContent(),'utf-8');
 
 let generator = new ConsoleOutputGenerator("ASSIGNMENT");
 generator = new HTMLOutputGenerator("ASSIGNMENT");
@@ -206,3 +208,4 @@ p1.findIBFSUsingMatrixMinima();
 p1.findIBFSUsingVogelApproximation();
 
 fs.appendFileSync('index.html',transportationGenerator.getContent(),'utf8');
+fs.appendFileSync('index.html','</body></html>','utf-8');

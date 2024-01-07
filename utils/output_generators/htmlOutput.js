@@ -17,28 +17,14 @@ class HTMLOutputGenerator {
 
     getHTMLTableFrom2dArray(table) {
         return `<table>
-                <thead>
-                    <tr>
-                        <th></th>
-                        ${(() => {
-                let headings = "";
-                for (let i = 0; i < table[0].length; i++) {
-                    headings += `<th>${i}</th>`;
-                }
-                return headings;
-            })()
-            }
-                    </tr>
-                </thead>
                 <tbody>
-                        ${table.map((row, i) => {
+                        ${table.map((row) => {
                 return (
                     `<tr>
-                        <td>${i}</td>
-                        ${row.map(col => `<td>${col}</td>`).join()}
+                        ${row.map(col => `<td>${col}</td>`).join("")}
                     </tr>`
                 );
-            })
+            }).join("")
             }
                 </tbody>
             </table>`;
