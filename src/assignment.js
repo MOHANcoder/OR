@@ -10,6 +10,11 @@ class Assignment {
         }
     }
 
+    /**
+     * 
+     * @param {number[]} table 
+     * @returns
+     */
     init(table) {
         let numberOfRows;
 
@@ -68,6 +73,12 @@ class Assignment {
         return table;
     }
 
+    /**
+     * 
+     * @param {number[]} table 
+     * @returns 
+     * It takes the table that has some assigned cells and replace every assignment as a normal zero-valued cells
+     */
     removeAllAssignments(table) {
         for (let i = 0; i < table.length; i++) {
             for (let j = 0; j < table.length; j++) {
@@ -325,6 +336,9 @@ class Assignment {
                 }
             }
 
+            tickedRows = [...new Set(tickedRows)];
+            tickedColumns = [...new Set(tickedColumns)];
+
             if (this.isOutputGeneratorAdded) {
                 this.outputGenerator.generate(table, "After Ticking the rows and columns : ", {
                     step: "TICKING",
@@ -350,6 +364,20 @@ class Assignment {
                 this.outputGenerator.showMessage("Minimum Uncovered Entry : " + minimumUnCoveredEntry);
             }
 
+
+            // Subtracting the uncovered entries by the minimum among them
+            for (let i of tickedRows) {
+                for (let j = 0; j < numberOfRows; j++) {
+                    if (!tickedColumns.includes(j)) {
+                        table[i][j] -= minimumUnCoveredEntry;
+                    }
+                }
+            }
+
+            if (this.isOutputGeneratorAdded) {
+                this.outputGenerator.generate(table, "After Subtracting the uncovered entries by the minimum among them : ");
+            }
+
             //Adding the minimum uncovered entry to the entries at the intersections.
 
             for (let i = 0; i < numberOfRows; i++) {
@@ -363,19 +391,7 @@ class Assignment {
             if (this.isOutputGeneratorAdded) {
                 this.outputGenerator.generate(table, "After Adding the minimum uncovered entry to the entries at the intersections : ");
             }
-
-            // Subtracting the uncovered entries by the minimum amoung them
-            for (let i of tickedRows) {
-                for (let j = 0; j < numberOfRows; j++) {
-                    if (!tickedColumns.includes(j)) {
-                        table[i][j] -= minimumUnCoveredEntry;
-                    }
-                }
-            }
-
-            if (this.isOutputGeneratorAdded) {
-                this.outputGenerator.generate(table, "After Subtracting the uncovered entries by the minimum amoung them : ");
-            }
+                       
 
             if (minimumUnCoveredEntry == 0) {
                 table = this.optimize(table, unAssignedRows);
