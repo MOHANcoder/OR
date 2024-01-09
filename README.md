@@ -1,7 +1,7 @@
 # operations-research
-A Simple NPM package for solving Operations Research Problems
-
-Usage :
+A Simple NPM package for solving Operations Research Problems.
+Step By Step solvers for Operations Research problems, Features to export the steps and calculations as a html content or in the console.
+## Usage :
 
 ## Assignment Problem
 ```js
