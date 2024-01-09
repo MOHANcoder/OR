@@ -1,6 +1,20 @@
 # operations-research
+
+[![Version](https://img.shields.io/npm/v/operations-research.svg)](https://www.npmjs.com/package/operations-research)
+[![Downloads](https://img.shields.io/npm/dt/operations-research)](https://www.npmjs.com/package/operations-research)
+[![Documentation](https://img.shields.io/badge/documentation-yes-brightgreen.svg)](https://github.com/MOHANcoder/operations-research/wiki)
+[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/MOHANcoder/operations-research/graphs/commit-activity)
+[![License: MIT](https://img.shields.io/github/license/MOHANcoder/operations-research)](https://github.com/MOHANcoder/operations-research/blob/master/LICENSE)
+
 A Simple NPM package for solving Operations Research Problems.
 Step By Step solvers for Operations Research problems, Features to export the steps and calculations as a html content or in the console.
+
+## Install
+
+```sh
+npm i operations-research
+```
+
 ## Usage :
 
 ## Assignment Problem
@@ -254,3 +268,23 @@ fs.writeFileSync("index.html",`
 </head>
 <body> ${simplexHTMLGenerator.getContent()} </body></html>`,'utf8');
 ```
+## 👤 Author
+
+This project was made by **S.Mohan**
+Feel free to contact me if you have any trouble with this package.
+
+-   Github: [@MOHANcoder](https://www.github.com/MOHANcoder)
+
+## 🤝 Contributing
+
+Contributions, issues and feature requests are welcome!
+Feel free to check [issues page](https://github.com/MOHANcoder/operations-research/issues).
+
+## Show your support
+
+Give a ⭐️ if this project helped you!
+
+## 📝 License
+
+Copyright © 2024 [S.Mohan (MOHANcoder)](https://www.github.com/MOHANcoder).
+This project is [MIT](https://github.com/MOHANcoder/operations-research/blob/main/LICENSE) licensed.
